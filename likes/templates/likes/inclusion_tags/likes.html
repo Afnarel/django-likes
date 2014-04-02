@@ -6,12 +6,19 @@
 
 {% if likes_enabled %}
     <div class="likes">
-        {{ content_obj.vote_total }}
+        {% blocktrans count content_obj.vote_total as total %}
+            {{ total }} like
+        {% plural %}
+            {{ total }} likes
+        {% endblocktrans %}
         <span>
             {% if can_vote %}
-                <a class="liker" href="{% url 'like' content_type content_obj.id 1 %}" rel="nofollow">{% trans "I Like" %}</a>
-            {% else %}
-                {% trans "Likes" %}
+                {% if can_like %}
+                    <a class="liker" href="{% url 'like' content_type content_obj.id 1 %}" rel="nofollow">{% trans "Like" %}</a>
+                {% endif %}
+                {% if can_unlike %}
+                    <a class="liker" href="{% url 'like' content_type content_obj.id 0 %}" rel="nofollow">{% trans "Unlike" %}</a>
+                {% endif %}
             {% endif %}
         </span>
     </div>

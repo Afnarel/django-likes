@@ -4,13 +4,17 @@ from django.http import HttpResponseNotFound
 from django.contrib.contenttypes.models import ContentType
 
 from secretballot import views
-from secretballot.models import Vote
 
-from likes.utils import can_vote
+from likes.utils import can_vote, VOTE_MIN, VOTE_MAX
 from likes import signals
 
 
 def can_vote_test(request, content_type, object_id, vote):
+    # if vote not in ['0', '1']:
+    vote_val = int(vote)
+    if vote_val < VOTE_MIN or vote_val > VOTE_MAX:
+        return False
+
     return can_vote(
         content_type.get_object_for_this_type(id=object_id),
         request.user,
@@ -26,7 +30,9 @@ def like(request, content_type, id, vote):
 
     url_friendly_content_type = content_type
     app, modelname = content_type.split('-')
-    content_type = ContentType.objects.get(app_label=app, model__iexact=modelname)
+    content_type = ContentType.objects.get(app_label=app,
+                                           model__iexact=modelname)
+
     if request.is_ajax():
         response = views.vote(
             request,
@@ -55,6 +61,8 @@ def like(request, content_type, id, vote):
             can_vote_test=can_vote_test
         )
 
-    signals.object_liked.send(sender=content_type.model_class(),
-        instance=content_type.get_object_for_this_type(id=id), request=request)
+    signals.object_liked.send(
+        sender=content_type.model_class(),
+        instance=content_type.get_object_for_this_type(id=id),
+        request=request)
     return response
