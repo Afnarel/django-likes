@@ -12,7 +12,7 @@ setup(
     packages = find_packages(),
     include_package_data=True,
     install_requires = [
-        'django-secretballot',
+        'git+https://github.com/sunlightlabs/django-secretballot.git',
     ],
     tests_require=[
         'django-setuptest>=0.0.6',
