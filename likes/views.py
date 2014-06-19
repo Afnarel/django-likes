@@ -2,10 +2,11 @@ import random
 
 from django.http import HttpResponseNotFound
 from django.contrib.contenttypes.models import ContentType
+from likes.utils import (can_vote, can_like, can_unlike, likes_enabled,
+                         VOTE_MIN, VOTE_MAX)
 
 from secretballot import views
 
-from likes.utils import can_vote, VOTE_MIN, VOTE_MAX
 from likes import signals
 
 
@@ -33,6 +34,9 @@ def like(request, content_type, id, vote):
     content_type = ContentType.objects.get(app_label=app,
                                            model__iexact=modelname)
 
+    ct_class = content_type.model_class()
+    obj = ct_class.objects.get(pk=id)
+
     if request.is_ajax():
         response = views.vote(
             request,
@@ -42,8 +46,11 @@ def like(request, content_type, id, vote):
             template_name='likes/inclusion_tags/likes.html',
             can_vote_test=can_vote_test,
             extra_context={
-                'likes_enabled': True,
-                'can_vote': False,
+                'likes_enabled': likes_enabled(obj, request),
+                'can_vote': can_vote(obj, request.user, request),
+                'can_like': not can_like(obj, request.user, request),
+                'can_unlike': not can_unlike(obj, request.user, request),
+                'content_obj': obj,
                 "content_type": url_friendly_content_type
             }
         )

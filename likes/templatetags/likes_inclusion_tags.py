@@ -10,10 +10,6 @@ def likes(context, obj, template=None):
     if template is None:
         template = 'likes/inclusion_tags/likes.html'
     request = context['request']
-    import_js = False
-    if not hasattr(request, '_django_likes_js_imported'):
-        setattr(request, '_django_likes_js_imported', 1)
-        import_js = True
     context.update({
         'template': template,
         'content_obj': obj,
@@ -21,7 +17,6 @@ def likes(context, obj, template=None):
         'can_vote': can_vote(obj, request.user, request),
         'can_like': can_like(obj, request.user, request),
         'can_unlike': can_unlike(obj, request.user, request),
-        'content_type': "-".join((obj._meta.app_label, obj._meta.module_name)),
-        'import_js': import_js
+        'content_type': "-".join((obj._meta.app_label, obj._meta.module_name))
     })
     return context
