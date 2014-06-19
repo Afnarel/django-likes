@@ -14,8 +14,6 @@ if (typeof $ != 'undefined'){
             }
             $.get(el.attr('href'), {}, function(data){
                 replace_target.replaceWith(data);
-                console.log(replace_target);
-                console.log(data);
             });
         });
 
